@@ -43,13 +43,13 @@
 
             @{
                 var stats = ViewBag.Stats as List<PokemonWorld.Data.PokemonStat>;
-                var oldStats = ViewBag.OldStats as List<PokemonWorld.Data.PokemonStatValue>;
+                var oldStatValues = ViewBag.OldStatValues as List<PokemonWorld.Data.PokemonStatValue>;
             }
 
             @for (var i = 0; i < stats.Count; i++)
             {
                 var stat = stats[i];
-                var existingValue = oldStats?.FirstOrDefault(sv => sv.PokemonStatId == stat.Id)?.Value ?? 0;
+                var existingValue = oldStatValues?.FirstOrDefault(sv => sv.PokemonStatId == stat.Id)?.Value ?? 0;
 
                 <div class="mb-2">
                     <label>@stat.Name</label>

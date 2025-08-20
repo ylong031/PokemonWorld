@@ -88,7 +88,7 @@ public class PokemonsController(ApplicationDbContext _context) : Controller
 
 
         ViewBag.OldSelectedTypes = pokemon.Types.Select(t => t.Id).ToList();
-        ViewBag.OldStats = pokemon.StatValues.ToList();
+        ViewBag.OldStatValues = pokemon.StatValues.ToList();
 
         if (pokemon == null)
         {
