@@ -1,0 +1,53 @@
+﻿
+
+                                * ──── * [PokemonType]
+[Generation] 1 ──── * [Pokemon]
+                                1 ──── *[PokemonStatValue] * ──── 1 [PokemonStat]
+
+
+Generation → Pokemon (One-to-Many)
+One Generation (like Gen 1, Gen 2) can have many Pokemons.
+Each Pokemon has one GenerationId.
+_________________________________________________________________________________
+Pokemon → PokemonType (Many-to-Many)
+A Pokemon can have multiple Types (e.g., Pikachu = Electric).
+A Type can belong to many Pokemons (e.g., "Water" belongs to Squirtle, Lapras, Gyarados).
+Usually implemented with a join table.
+____________________________________________________________________________________
+Pokemon → PokemonStatValue (One-to-Many)
+A Pokemon has multiple stat values (HP, Attack, Defense, etc.).
+Example: Pikachu has HP = 35, Attack = 55, Speed = 90.
+____________________________________________________________________________________
+PokemonStat → PokemonStatValue (One-to-Many)
+"PokemonStat" defines what the stat is (HP, Attack, Defense...).
+"PokemonStatValue" links that stat to a Pokemon with its value.
+Example: PokemonStat = "HP", PokemonStatValue = 35 (for Pikachu).
+
+Pokemon Table
++----+-----------+
+| Id | Name      |
++----+-----------+
+| 1  | Pikachu   |
+| 2  | Charmander|
++----+-----------+
+
+PokemonStat Table
++----+--------+
+| Id | Name   |
++----+--------+
+| 1  | Attack |
+| 2  | Defense|
+| 3  | Speed  |
++----+--------+
+
+PokemonStatValue Table
++-----------+-------+---------------+
+| PokemonId | Value | PokemonStatId |
++-----------+-------+---------------+
+| 1         |  35   | 1             | <- Pikachu Attack
+| 1         |  45   | 2             | <- Pikachu Defense
+| 1         |  70   | 3             | <- Pikachu Speed
+| 2         |  30   | 1             | <- Charmander Attack
+| 2         |  50   | 2             | <- Charmander Defense
+| 2         | 100   | 3             | <- Charmander Speed
++-----------+-------+---------------+

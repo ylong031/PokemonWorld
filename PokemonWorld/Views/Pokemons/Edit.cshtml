@@ -1,0 +1,80 @@
+﻿@model PokemonWorld.Data.Pokemon
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Pokemon</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Index" class="control-label"></label>
+                <input asp-for="Index" class="form-control" />
+                <span asp-validation-for="Index" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GenerationId" class="form-label"></label>
+                <select asp-for="GenerationId" class="form-control" asp-items="ViewBag.GenerationsList">
+                    <option value="">-- Select Generation --</option>
+                </select>
+                <span asp-validation-for="GenerationId" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label>Types</label><br/>
+                
+                @foreach (var type in ViewBag.Types as List<PokemonWorld.Data.PokemonType>)
+                {
+                    var isChecked = ViewBag.OldSelectedTypes.Contains(type.Id) ? "checked" : "";
+
+                    <input type="checkbox" name="NewSelectedTypes" value="@type.Id" @isChecked /> @type.Name <br />
+                }
+            </div>
+
+            @{
+                var stats = ViewBag.Stats as List<PokemonWorld.Data.PokemonStat>;
+                var oldStats = ViewBag.OldStats as List<PokemonWorld.Data.PokemonStatValue>;
+            }
+
+            @for (var i = 0; i < stats.Count; i++)
+            {
+                var stat = stats[i];
+                var existingValue = oldStats?.FirstOrDefault(sv => sv.PokemonStatId == stat.Id)?.Value ?? 0;
+
+                <div class="mb-2">
+                    <label>@stat.Name</label>
+                    <input type="number" name="StatValues[@i].Value" value="@existingValue" />
+                    <input type="hidden" name="StatValues[@i].PokemonStatId" value="@stat.Id" />
+                </div>
+            }
+
+
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsLegendary" /> @Html.DisplayNameFor(model => model.IsLegendary)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

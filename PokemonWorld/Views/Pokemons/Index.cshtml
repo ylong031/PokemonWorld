@@ -1,0 +1,51 @@
+﻿@model IEnumerable<PokemonWorld.Data.Pokemon>
+
+<h1>Pokémon List</h1>
+
+<a asp-action="Create" class="btn btn-primary mb-3">Create New</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Index</th>
+            <th>Name</th>
+            <th>Generation</th>
+            <th>Legendary</th>
+            <th>Types</th>
+            <th>Stats</th>
+            <th>Options</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.Index</td>
+                <td>@p.Name</td>
+                <td>@p.Generation?.Name</td>
+                <td>@(p.IsLegendary ? "Yes" : "No")</td>
+                <td>
+                    @if (p.Types != null && p.Types.Any())
+                    {
+                        @string.Join(", ", p.Types.Select(t => t.Name))
+                    }
+                    else
+                    {
+                        <em>No types</em>
+                    }
+                </td>
+                <td>
+                    @foreach (var s in p.StatValues)
+                    {
+                        <div>@s.PokemonStat?.Name: @s.Value</div>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@p.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@p.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@p.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
