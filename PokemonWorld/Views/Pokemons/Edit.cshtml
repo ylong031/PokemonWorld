@@ -76,7 +76,7 @@
 
                 var existingValue = oldStatValues?.FirstOrDefault(p => p.PokemonStatId == stat.Id)?.Value ?? 0;
                
-
+                @* reconstruct the entire StatValues List in Pokemon *@
                 <div class="mb-2">
                     <label>@stat.Name</label>
                     <input type="number" name="StatValues[@i].Value" value="@existingValue" />

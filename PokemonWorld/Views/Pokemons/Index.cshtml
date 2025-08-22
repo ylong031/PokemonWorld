@@ -1,98 +1,55 @@
-﻿@model IEnumerable<PokemonWorld.Data.Pokemon>
+﻿@model PokemonWorld.Models.PokemonIndexViewModel
 
+<h2>Pokémon List</h2>
 
-@* Filter by Types → checkboxes
+<!-- Filter Form -->
+<form method="get" asp-action="Index">
+    <div>
+        <h4>Filter by Types:</h4>
+        @foreach (var type in Model.Types)
+        {
+            <label>
+                <input type="checkbox"
+                       name="SelectedTypeIds"
+                       value="@type.Id"
+                       @(Model.SelectedTypeIds != null && Model.SelectedTypeIds.Contains(type.Id) ? "checked" : "") />
+                @type.Name
+            </label>
+        }
+    </div>
+    <button type="submit">Apply Filter</button>
+</form>
 
-Filter by Generation → dropdown
+<hr />
 
-Sort by Name / Index / HP / Stats → dropdown *@
-
-
-<h1>Pokémon List</h1>
-
-<a asp-action="Create" class="btn btn-primary mb-3">Create New</a>
-
-
-
-
-<table class="table table-striped" >
+<!-- Pokémon Table -->
+<table class="table">
     <thead>
         <tr>
-            <th>Index</th>
+            <th>#</th>
             <th>Name</th>
             <th>Generation</th>
             <th>Legendary</th>
-            <th>
-                <form asp-action="Index" method="get">
-                    <div class="mb-3 position-relative">
-                        <button class="btn btn-outline-secondary w-100 text-start" type="button" id="typeDropdownButton">
-                            Filter by Types
-                        </button>
-                        <div class="border rounded position-absolute bg-white w-100 mt-1 p-2" id="typeDropdownMenu" style="display:none; max-height:200px; overflow-y:auto; z-index:1000;">
-                            @foreach (var type in ViewBag.Types as List<PokemonWorld.Data.PokemonType>)
-                            {
-                                @* 
-                                The id on the<input> is like the input’s “name tag.”
-                                The for on the < label > points to that name tag, saying “I belong to this input.”
-                                So when you click the label text, the browser knows which input to toggle. 
-                              *@
-
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="SelectedTypeIds" value="@type.Id" >
-                                    <label class="form-check-label" >@type.Name</label>
-                                </div>
-                            }
-                        </div>
-                         <button type="submit" class="btn btn-primary">Apply Filters</button>
-                    </div>
-                </form>
-
-                <script>
-                    const button = document.getElementById('typeDropdownButton');
-                    const menu = document.getElementById('typeDropdownMenu');
-
-                    button.addEventListener('click', () => {
-                        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-                    });
-
-                    // Optional: Close dropdown when clicking outside
-                    document.addEventListener('click', function(event) {
-                        if (!button.contains(event.target) && !menu.contains(event.target)) {
-                            menu.style.display = 'none';
-                        }
-                    });
-                </script>
-                Types
-            </th>
+            <th>Types</th>
             <th>Stats</th>
             <th>Options</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var p in Model)
+        @foreach (var p in Model.Pokemons)
         {
-           
             <tr>
-
                 <td>@p.Index</td>
                 <td>@p.Name</td>
-                <td>@p.Generation?.Name</td>
-                <td>@(p.IsLegendary ? "Yes" : "No")</td>
+                <td>@p.GenerationName</td>
+                <td>@p.IsLegendary</td>
                 <td>
-                    @if (p.Types != null && p.Types.Any())
-                    {
-                        @string.Join(", ", p.Types.Select(t => t.Name))
-                    }
-                    else
-                    {
-                        <em>No types</em>
-                    }
+                    @string.Join(", ", p.TypeNames)
                 </td>
                 <td>
-                    @foreach (var s in p.StatValues)
+                    @foreach (var stat in p.Stats)
                     {
-                        <div>@s.PokemonStat?.Name: @s.Value</div>
+                        <div>@stat.StatName: @stat.Value</div>
                     }
                 </td>
                 <td>

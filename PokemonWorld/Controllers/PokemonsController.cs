@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PokemonWorld.Data;
+using PokemonWorld.Models;
 using System;
 using System.Security.Policy;
 using System.Threading;
@@ -13,9 +14,37 @@ public class PokemonsController(ApplicationDbContext _context) : Controller
 
 
 
+    /*  public async Task<IActionResult> Index(int[]? SelectedTypeIds)
+      {
+         var query = _context.Pokemons
+              .Include(p => p.Generation)
+              .Include(p => p.Types)
+              .Include(p => p.StatValues)
+                  .ThenInclude(sv => sv.PokemonStat)
+              .AsQueryable();
+
+          // Filter if any types are selected
+          if (SelectedTypeIds != null && SelectedTypeIds.Length > 0)
+          {
+              query = query.Where(p => p.Types.Any(t => SelectedTypeIds.Contains(t.Id)));
+          }
+
+          var pokemons = await query.ToListAsync();
+
+          ViewBag.Types = await _context.PokemonTypes.ToListAsync();
+
+
+
+
+
+          return View(pokemons);
+
+
+      }*/
+
     public async Task<IActionResult> Index(int[]? SelectedTypeIds)
     {
-       var query = _context.Pokemons
+        var query = _context.Pokemons
             .Include(p => p.Generation)
             .Include(p => p.Types)
             .Include(p => p.StatValues)
@@ -29,13 +58,40 @@ public class PokemonsController(ApplicationDbContext _context) : Controller
         }
 
         var pokemons = await query.ToListAsync();
+        var types = await _context.PokemonTypes.ToListAsync();
 
-        ViewBag.Types = await _context.PokemonTypes.ToListAsync();
+        // Map to ViewModels (simplified version, you can expand later)
+        var viewModel = new PokemonIndexViewModel
+        {
+            Pokemons = pokemons.Select(p => new PokemonViewModel
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Index = p.Index,
+                IsLegendary=p.IsLegendary,
+                GenerationName = p.Generation.Name,
+                TypeNames = p.Types.Select(t => t.Name).ToList(),
+                Stats = p.StatValues.Select(sv => new StatValueViewModel
+                {
+                    StatName = sv.PokemonStat.Name,
+                    Value = sv.Value
+                }).ToList()
+            }).ToList(),
 
-        return View(pokemons);
-    
+            Types = types.Select(t => new PokemonTypeViewModel
+            {
+                Id = t.Id,
+                Name = t.Name
+            }).ToList(),
 
+            SelectedTypeIds = SelectedTypeIds
+        };
+
+        return View(viewModel);
     }
+
+
+
 
 
     // GET: Create
@@ -177,24 +233,24 @@ public class PokemonsController(ApplicationDbContext _context) : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, Pokemon pokemon, int[]? NewSelectedTypes)
+    public async Task<IActionResult> Edit(int id, Pokemon updatedPokemon, int[]? NewSelectedTypes)
     {
         // Fetch the tracked entity
-        var existingPokemon = await _context.Pokemons
+        var editingPokemon = await _context.Pokemons
             .Include(p => p.Types)
             .Include(p => p.StatValues)
             .FirstOrDefaultAsync(p => p.Id == id);
 
-        if (existingPokemon == null) return NotFound();
+        if (editingPokemon == null) return NotFound();
 
         try
         {
-            existingPokemon.Name = pokemon.Name;
-            existingPokemon.Index = pokemon.Index;
-            existingPokemon.GenerationId = pokemon.GenerationId;
-            existingPokemon.IsLegendary = pokemon.IsLegendary;
+            editingPokemon.Name = updatedPokemon.Name;
+            editingPokemon.Index = updatedPokemon.Index;
+            editingPokemon.GenerationId = updatedPokemon.GenerationId;
+            editingPokemon.IsLegendary = updatedPokemon.IsLegendary;
             // Clear old types
-            existingPokemon.Types.Clear();
+            editingPokemon.Types.Clear();
 
             // Add newly selected types
             if (NewSelectedTypes != null)
@@ -205,22 +261,22 @@ public class PokemonsController(ApplicationDbContext _context) : Controller
 
                 foreach (var type in typesToAdd)
                 {
-                    existingPokemon.Types.Add(type);
+                    editingPokemon.Types.Add(type);
                 }
             }
 
-            foreach (var sv in pokemon.StatValues)
+            foreach (var updatedStatValue in updatedPokemon.StatValues)
             {
-                var existing = existingPokemon.StatValues
-                    .FirstOrDefault(x => x.PokemonStatId == sv.PokemonStatId);
+                var editingStateValue = editingPokemon.StatValues
+                    .FirstOrDefault(x => x.PokemonStatId == updatedStatValue.PokemonStatId);
 
-                if (existing != null)
+                if (editingStateValue != null)
                 {
-                    existing.Value = sv.Value; // just update
+                    editingStateValue.Value = updatedStatValue.Value; // just update
                 }
                 else
                 {
-                    existingPokemon.StatValues.Add(sv); // new stat added
+                    editingPokemon.StatValues.Add(updatedStatValue); // new stat added
                 }
             }
 
