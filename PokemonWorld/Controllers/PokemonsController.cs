@@ -13,22 +13,35 @@ public class PokemonsController(ApplicationDbContext _context) : Controller
 
 
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int[]? SelectedTypeIds)
     {
-        var pokemons = await _context.Pokemons
+       var query = _context.Pokemons
             .Include(p => p.Generation)
-            .Include(p => p.Types)               // <-- include Types
+            .Include(p => p.Types)
             .Include(p => p.StatValues)
                 .ThenInclude(sv => sv.PokemonStat)
-            .ToListAsync();
+            .AsQueryable();
+
+        // Filter if any types are selected
+        if (SelectedTypeIds != null && SelectedTypeIds.Length > 0)
+        {
+            query = query.Where(p => p.Types.Any(t => SelectedTypeIds.Contains(t.Id)));
+        }
+
+        var pokemons = await query.ToListAsync();
+
+        ViewBag.Types = await _context.PokemonTypes.ToListAsync();
 
         return View(pokemons);
+    
+
     }
 
 
     // GET: Create
     public async Task<IActionResult> Create()
     {
+        
         ViewBag.GenerationsList = new SelectList(await _context.Generations.ToListAsync(), "Id", "Name");
         ViewBag.Stats = await _context.PokemonStats.ToListAsync();
         ViewBag.Types = await _context.PokemonTypes.ToListAsync();
@@ -68,6 +81,34 @@ public class PokemonsController(ApplicationDbContext _context) : Controller
     }
 
 
+
+    // GET: Pokemons/Delete/5
+    public async Task<IActionResult> Details(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var pokemon = await _context.Pokemons
+            .Include(m => m.Generation)
+            .Include(m => m.Types)
+            .Include(m => m.StatValues)
+            .ThenInclude(sv => sv.PokemonStat)
+            .FirstOrDefaultAsync(m => m.Id == id);
+        if (pokemon == null)
+        {
+            return NotFound();
+        }
+
+        return View(pokemon);
+    }
+
+
+
+
+
+
     // GET: Pokemons/Edit/5
     public async Task<IActionResult> Edit(int? id)
     {
@@ -86,8 +127,10 @@ public class PokemonsController(ApplicationDbContext _context) : Controller
             .Include(p => p.StatValues)
             .FirstOrDefaultAsync(p => p.Id == id);
 
+        //retrieve the list of PokemonType's Id from that specific pokemon
+        ViewBag.OldSelectedTypeIds = pokemon.Types.Select(t => t.Id).ToList();
 
-        ViewBag.OldSelectedTypes = pokemon.Types.Select(t => t.Id).ToList();
+        //retrieve a list of PokemonStatValue object from that specific pokemon
         ViewBag.OldStatValues = pokemon.StatValues.ToList();
 
         if (pokemon == null)

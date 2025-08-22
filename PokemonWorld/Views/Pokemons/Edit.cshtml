@@ -30,26 +30,52 @@
                 </select>
                 <span asp-validation-for="GenerationId" class="text-danger"></span>
             </div>
+
+
+
+
+
             <div class="mb-3">
                 <label>Types</label><br/>
                 
                 @foreach (var type in ViewBag.Types as List<PokemonWorld.Data.PokemonType>)
                 {
-                    var isChecked = ViewBag.OldSelectedTypes.Contains(type.Id) ? "checked" : "";
+                    var isChecked = ViewBag.OldSelectedTypeIds.Contains(type.Id) ? "checked" : "";
 
                     <input type="checkbox" name="NewSelectedTypes" value="@type.Id" @isChecked /> @type.Name <br />
                 }
             </div>
 
+
+
+@* -------------------------------------------------------------------------------------------------------------------------------- *@
+
+             @* 
+            oldStatValues? 
+            -→ Only check if oldStatValues is not null.
+                
+            FirstOrDefault(p => p.PokemonStatId == stat.Id)?.Value 
+            -→ If the FirstOrDefault(...) didn’t find anything (returns null),
+                then just return null instead of trying to access .Value on a null object. if found,return value
+              
+            ?? 0 
+            → If no match is found (or if oldStatValues was null), then use 0 as the default. 
+            *@
+
+
             @{
                 var stats = ViewBag.Stats as List<PokemonWorld.Data.PokemonStat>;
                 var oldStatValues = ViewBag.OldStatValues as List<PokemonWorld.Data.PokemonStatValue>;
+                var x = Model.StatValues;
             }
 
             @for (var i = 0; i < stats.Count; i++)
             {
                 var stat = stats[i];
-                var existingValue = oldStatValues?.FirstOrDefault(sv => sv.PokemonStatId == stat.Id)?.Value ?? 0;
+             
+
+                var existingValue = oldStatValues?.FirstOrDefault(p => p.PokemonStatId == stat.Id)?.Value ?? 0;
+               
 
                 <div class="mb-2">
                     <label>@stat.Name</label>
@@ -57,6 +83,11 @@
                     <input type="hidden" name="StatValues[@i].PokemonStatId" value="@stat.Id" />
                 </div>
             }
+
+
+@* -------------------------------------------------------------------------------------------------------------------------------- *@
+
+
 
 
             <div class="form-group form-check">
