@@ -1,4 +1,4 @@
-﻿@model PokemonWorld.Data.Pokemon
+﻿@model PokemonWorld.Models.PokemonEditViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -25,7 +25,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="GenerationId" class="form-label"></label>
-                <select asp-for="GenerationId" class="form-control" asp-items="ViewBag.GenerationsList">
+                <select asp-for="GenerationId" class="form-control" asp-items="Model.AllGenerations">
                     <option value="">-- Select Generation --</option>
                 </select>
                 <span asp-validation-for="GenerationId" class="text-danger"></span>
@@ -38,9 +38,9 @@
             <div class="mb-3">
                 <label>Types</label><br/>
                 
-                @foreach (var type in ViewBag.Types as List<PokemonWorld.Data.PokemonType>)
+                @foreach (var type in Model.AllPokemonTypes)
                 {
-                    var isChecked = ViewBag.OldSelectedTypeIds.Contains(type.Id) ? "checked" : "";
+                    var isChecked = Model.OldSelectedTypeIds.Contains(type.Id) ? "checked" : "";
 
                     <input type="checkbox" name="NewSelectedTypes" value="@type.Id" @isChecked /> @type.Name <br />
                 }
@@ -64,9 +64,9 @@
 
 
             @{
-                var stats = ViewBag.Stats as List<PokemonWorld.Data.PokemonStat>;
-                var oldStatValues = ViewBag.OldStatValues as List<PokemonWorld.Data.PokemonStatValue>;
-                var x = Model.StatValues;
+                var stats = Model.AllPokemonStats;
+                var oldStatValues = Model.StatValues;
+
             }
 
             @for (var i = 0; i < stats.Count; i++)

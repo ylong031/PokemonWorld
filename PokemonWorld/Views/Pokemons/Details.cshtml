@@ -1,4 +1,4 @@
-﻿@model PokemonWorld.Data.Pokemon
+﻿@model PokemonWorld.Models.PokemonViewModel
 
 @{
     ViewData["Title"] = "Details";
@@ -24,15 +24,15 @@
 
 
     <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.Types)
+        @Html.DisplayNameFor(model => model.TypeNames)
     </dt>
     <dd class="col-sm-10">
 
-        @if (Model.Types != null)
+        @if (Model.TypeNames != null)
         {
-            @foreach (var type in Model.Types)
+            @foreach (var type in Model.TypeNames)
             {
-                <div>@type.Name</div>
+                <div>@type</div>
             }
 
         }
@@ -48,7 +48,7 @@
         {
             @foreach (var statvalue in Model.StatValues)
             {
-                <div>@statvalue.PokemonStat.Name : @statvalue.Value</div>
+                <div>@statvalue.StatName : @statvalue.Value</div>
 
             }
 
@@ -57,10 +57,10 @@
     </dd>
 
     <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.Generation)
+        @Html.DisplayNameFor(model => model.GenerationName)
     </dt>
     <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.Generation.Name)
+        @Html.DisplayFor(model => model.GenerationName)
     </dd>
     <dt class="col-sm-2">
         @Html.DisplayNameFor(model => model.IsLegendary)

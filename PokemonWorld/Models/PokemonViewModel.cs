@@ -9,6 +9,6 @@
 
         public bool IsLegendary { get; set; }
         public List<string> TypeNames { get; set; }
-        public List<StatValueViewModel> Stats { get; set; }
+        public List<PokemonStatValueViewModel> StatValues { get; set; }
     }
 }

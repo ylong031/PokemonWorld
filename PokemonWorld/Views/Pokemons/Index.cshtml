@@ -2,6 +2,7 @@
 
 <h2>Pokémon List</h2>
 
+<a asp-action="Create" class="btn btn-primary mb-3">Create New</a>
 <!-- Filter Form -->
 <form method="get" asp-action="Index">
     <div>
@@ -47,7 +48,7 @@
                     @string.Join(", ", p.TypeNames)
                 </td>
                 <td>
-                    @foreach (var stat in p.Stats)
+                    @foreach (var stat in p.StatValues)
                     {
                         <div>@stat.StatName: @stat.Value</div>
                     }

@@ -1,61 +1,52 @@
-﻿@model PokemonWorld.Data.Pokemon
-
-@{
-    ViewData["Title"] = "Create Pokemon";
-}
+﻿@model PokemonWorld.Models.PokemonCreateViewModel
 
 <h1>Create Pokémon</h1>
 
-<form asp-action="Create">
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="mb-3">
-        <label asp-for="Index" class="form-label"></label>
+        <label asp-for="Index"></label>
         <input asp-for="Index" class="form-control" />
     </div>
 
     <div class="mb-3">
-        <label asp-for="Name" class="form-label"></label>
+        <label asp-for="Name"></label>
         <input asp-for="Name" class="form-control" />
     </div>
 
     <div class="mb-3">
-        <label asp-for="GenerationId" class="form-label"></label>
-        <select asp-for="GenerationId" class="form-control" asp-items="ViewBag.GenerationsList">
+        <label asp-for="GenerationId"></label>
+        <select asp-for="GenerationId" class="form-control" asp-items="@Model.Generations">
             <option value="">-- Select Generation --</option>
         </select>
     </div>
 
     <div class="mb-3">
         <label>Types</label><br/>
-        @foreach (var type in ViewBag.Types as List<PokemonWorld.Data.PokemonType>)
+        @foreach (var type in Model.PokemonTypes)
         {
-           
             <input type="checkbox" name="SelectedTypes" value="@type.Id" /> @type.Name <br />
         }
     </div>
 
     <h4>Stats</h4>
-    @{ var i = 0; }
-    @foreach (var stat in ViewBag.Stats as List<PokemonWorld.Data.PokemonStat>)
+    @for (int i = 0; i < Model.StatValues.Count; i++)
     {
         <div class="mb-2">
-            <label>@stat.Name</label>
-
-            <!-- Input for the user to enter the stat's value -->
-            <!-- Name uses the index to bind correctly to Pokemon.StatValues list -->
-            <input type="number" name="StatValues[@i].Value" class="form-control" />
-            
-             <!-- Hidden input stores the stat's ID so the model knows which stat this value belongs to -->
-            <input type="hidden" name="StatValues[@i].PokemonStatId" value="@stat.Id" />
+           @*  we are not filling up the StatName,so it should be set as nullable *@
+            <label>@Model.StatValues[i].StatName</label>  
+            <input type="number" name="StatValues[@i].Value" class="form-control" value="@Model.StatValues[i].Value" />
+            <input type="hidden" name="StatValues[@i].PokemonStatId" value="@Model.StatValues[i].PokemonStatId" />
         </div>
-        i++;
     }
 
     <div class="form-check mb-3">
         <input class="form-check-input" asp-for="IsLegendary" />
-        <label asp-for="IsLegendary" class="form-check-label"></label>
+        <label asp-for="IsLegendary"></label>
     </div>
 
-    <input type="submit" value="Create" class="btn btn-primary" />
+    <input type="submit" value="Create" class="btn btn-primary" />
 </form>
